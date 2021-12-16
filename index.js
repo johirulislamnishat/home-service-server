@@ -86,11 +86,20 @@ client.connect((err) => {
 		res.json(result)
 	});
 
-	//ENGINNERS GET API
+	//ENGINEERS GET API
 	app.get('/engineers', async (req, res) => {
 		const cursor = engineersCollection.find({});
 		const engineers = await cursor.toArray();
 		res.send(engineers)
+	})
+
+	//DELETE ENGINEERS API
+	app.delete('/deleteEngineer/:id', async (req, res) => {
+		const id = req.params.id;
+		const query = { _id: ObjectId(id) };
+		const result = await engineersCollection.deleteOne(query);
+		// console.log(result);
+		res.send(result)
 	})
 
 	//SERVICES POST API
