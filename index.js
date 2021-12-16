@@ -20,9 +20,9 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 client.connect((err) => {
 	const usersCollection = client.db('home_service').collection('users');
-	const doctorsCollection = client.db('home_service').collection('doctors');
-	const appointmentCollection = client.db('home_service').collection('appointments');
-	const patientCollection = client.db('home_service').collection('patients');
+	const servicesCollection = client.db('home_service').collection('services');
+	const engineersCollection = client.db('home_service').collection('engineers');
+	const bookedServicesCollection = client.db('home_service').collection('bookedServices');
 	const reviewCollection = client.db('home_service').collection('addReviews');
 
 
@@ -78,140 +78,79 @@ client.connect((err) => {
 		res.send(result)
 	})
 
-	//DOCTORS POST API
-	app.post('/doctors', async (req, res) => {
-		const doctors = req.body;
-		const result = await doctorsCollection.insertOne(doctors)
+	//ENGINEERS POST API
+	app.post('/engineers', async (req, res) => {
+		const engineers = req.body;
+		const result = await engineersCollection.insertOne(engineers)
 		// console.log(result);
 		res.json(result)
 	});
 
-	//DOCTORS GET API
-	app.get('/doctors', async (req, res) => {
-		const cursor = doctorsCollection.find({});
-		const doctors = await cursor.toArray();
-		res.send(doctors)
+	//ENGINNERS GET API
+	app.get('/engineers', async (req, res) => {
+		const cursor = engineersCollection.find({});
+		const engineers = await cursor.toArray();
+		res.send(engineers)
 	})
 
-	//DOCTORS Single Item
-	app.get('/doctors/:id', async (req, res) => {
-		const id = req.params.id;
-		const query = { _id: ObjectId(id) };
-		const result = await doctorsCollection.findOne(query);
-		res.send(result)
-	})
-
-	//DELETE DOCTORS API
-	app.delete('/doctors/:id', async (req, res) => {
-		const id = req.params.id;
-		const query = { _id: ObjectId(id) };
-		const result = await doctorsCollection.deleteOne(query);
-		// console.log(result);
-		res.send(result)
-	})
-
-
-	//APPOINTMENT POST API
-	app.post('/appointments', async (req, res) => {
-		const appointments = req.body;
-		const result = await appointmentCollection.insertOne(appointments)
-		// const data = await patientCollection.insertOne(patients)
+	//SERVICES POST API
+	app.post('/services', async (req, res) => {
+		const services = req.body;
+		const result = await servicesCollection.insertOne(services)
 		// console.log(result);
 		res.json(result)
 	});
 
-	//APPOINTMENT GET API
-	app.get('/appointments', async (req, res) => {
-		const cursor = appointmentCollection.find({});
+	//SERVICES GET API
+	app.get('/services', async (req, res) => {
+		const cursor = servicesCollection.find({});
+		const services = await cursor.toArray();
+		res.send(services)
+	})
+
+	//SERVICES GET BY ID
+	app.get('/services/:id', async (req, res) => {
+		const id = req.params.id;
+		const query = { _id: ObjectId(id) };
+		const result = await servicesCollection.findOne(query);
+		res.send(result)
+	})
+
+	//DELETE SERVICES API
+	app.delete('/services/:id', async (req, res) => {
+		const id = req.params.id;
+		const query = { _id: ObjectId(id) };
+		const result = await servicesCollection.deleteOne(query);
+		// console.log(result);
+		res.send(result)
+	})
+
+
+	//BOOKING SERVICE POST API
+	app.post('/bookedServices', async (req, res) => {
+		const services = req.body;
+		const result = await bookedServicesCollection.insertOne(services)
+		res.json(result)
+	});
+
+	//Booked Services GET API
+	app.get('/bookedServices', async (req, res) => {
+		const cursor = bookedServicesCollection.find({});
 		const result = await cursor.toArray();
 		res.json(result);
 	})
 
-	//appointment status update
-	app.patch("/update-status/:statusId", (req, res) => {
-		const id = req.params.statusId;
-		// console.log(id)
-		const status = req.body.status;
-		// console.log('abcd')
-		// console.log(req.body)
-		appointmentCollection
-			.updateOne(
-				{ _id: ObjectId(id) },
-				{
-					$set: {
-						status,
-					},
-				}
-			)
-			.then((result) => {
-				res.send({
-					message: "delivery status updated successfully",
-					modified: result.modifiedCount > 0,
-				});
-			});
-	});
-
-
-	//appointment meetlink update
-	// app.patch("/update-meeting/:meetId", (req, res) => {
-	// 	const meetId = req.params.meetId;
-	// 	console.log(meetId)
-	// 	const meetinglink = req.body.meetinglink;
-	// 	console.log('abcd')
-	// 	console.log(req.body)
-	// 	appointmentCollection
-	// 		.updateOne(
-	// 			{ _id: ObjectId(meetId) },
-	// 			{
-	// 				$set: {
-	// 					meetinglink,
-	// 				},
-	// 			}
-	// 		)
-	// 		.then((result) => {
-	// 			res.send({
-	// 				message: "delivery status updated successfully",
-	// 				modified: result.modifiedCount > 0,
-	// 			});
-	// 		});
-	// });
-
-	//GET MEETING API
-	app.get('/meeting/:id', async (req, res) => {
+	//Booked Services PAYMENT API
+	app.get('/bookedServices/:id', async (req, res) => {
 		const id = req.params.id;
 		// console.log('this is id', id)
 		const query = { _id: ObjectId(id) };
-		const data = await appointmentCollection.findOne(query);
-		res.send(data)
-	})
-
-	//PUT MEETING API
-	app.put('/meeting/:id', async (req, res) => {
-		const id = req.params.id;
-		// console.log('this is id', id)
-		const updatedLink = req.body;
-		const filter = { _id: ObjectId(id) };
-		const options = { upsert: true };
-		const updateDoc = {
-			$set: {
-				meetingLink: updatedLink.meetingLink
-			}
-		}
-		const data = await appointmentCollection.updateOne(filter, updateDoc, options);
-		res.send(data)
-	})
-
-	//APPOINTMENT PAYMENT API
-	app.get('/appointments/:id', async (req, res) => {
-		const id = req.params.id;
-		// console.log('this is id', id)
-		const query = { _id: ObjectId(id) };
-		const result = await appointmentCollection.findOne(query);
+		const result = await bookedServicesCollection.findOne(query);
 		res.send(result)
 	})
 
-	//APPOINTMENT PAYMENT SUCCESS API
-	app.put('/appointments/:id', async (req, res) => {
+	//Booked Services PAYMENT SUCCESS API
+	app.put('/bookedServices/:id', async (req, res) => {
 		const id = req.params.id;
 		const payment = req.body;
 		const filter = { _id: ObjectId(id) }
@@ -220,38 +159,38 @@ client.connect((err) => {
 				payment: payment
 			}
 		};
-		const result = await appointmentCollection.updateOne(filter, updateDoc);
+		const result = await bookedServicesCollection.updateOne(filter, updateDoc);
 		res.json(result)
 	})
 
-	//DELETE APPOINTMENT API
-	app.delete('/appointments/:id', async (req, res) => {
+	//DELETE Booked Services API
+	app.delete('/bookedServices/:id', async (req, res) => {
 		const id = req.params.id;
 		const query = { _id: ObjectId(id) };
-		const result = await appointmentCollection.deleteOne(query);
+		const result = await bookedServicesCollection.deleteOne(query);
 		// console.log(result);
 		res.send(result)
 	})
 
-	//GET APPOINTMENT BY EMAIL
-	app.get('/appointment/:email', async (req, res) => {
+	//GET Booked Services BY EMAIL
+	app.get('/bookedService/:email', async (req, res) => {
 		// const email = req.query.email;
-		const result = await appointmentCollection.find({ email: req.params.email }).toArray();
+		const result = await bookedServicesCollection.find({ email: req.params.email }).toArray();
 		// console.log(req.params.email)
 		// console.log(result);
 		res.send(result)
 	})
 
-	//Cancel Appointments API
-	app.delete('/cancelAppointments/:id', async (req, res) => {
+	//Cancel Booked Services API
+	app.delete('/cancelBookedServices/:id', async (req, res) => {
 		const id = req.params.id;
 		const query = { _id: ObjectId(id) };
-		const result = await appointmentCollection.deleteOne(query);
+		const result = await bookedServicesCollection.deleteOne(query);
 		// console.log(result);
 		res.send(result)
 	})
 
-	// Added A New Doctor Review
+	// Added A New Service Review
 	app.post('/addReviews', async (req, res) => {
 		const review = req.body;
 		const result = await reviewCollection.insertOne(review)
