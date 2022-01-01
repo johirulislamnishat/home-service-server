@@ -24,6 +24,7 @@ client.connect((err) => {
 	const engineersCollection = client.db('home_service').collection('engineers');
 	const bookedServicesCollection = client.db('home_service').collection('bookedServices');
 	const reviewCollection = client.db('home_service').collection('addReviews');
+	const blogsCollection = client.db('home_service').collection('addBlogs');
 
 
 	console.log('Home Service DataBase Connected');
@@ -237,6 +238,38 @@ client.connect((err) => {
 			clientSecret: paymentIntent.client_secret,
 		});
 	});
+
+	//BLOGS POST API
+	app.post('/blogs', async (req, res) => {
+		const blog = req.body;
+		const result = await blogsCollection.insertOne(blog)
+		// console.log(result);
+		res.json(result)
+	});
+
+	//BLOGS GET API
+	app.get('/blogs', async (req, res) => {
+		const cursor = blogsCollection.find({});
+		const blogs = await cursor.toArray();
+		res.send(blogs)
+	})
+
+	//BLOGS GET BY ID
+	app.get('/blogs/:id', async (req, res) => {
+		const id = req.params.id;
+		const query = { _id: ObjectId(id) };
+		const result = await blogsCollection.findOne(query);
+		res.send(result)
+	})
+
+	//DELETE BLOGS API
+	app.delete('/deleteBlogs/:id', async (req, res) => {
+		const id = req.params.id;
+		const query = { _id: ObjectId(id) };
+		const result = await blogsCollection.deleteOne(query);
+		// console.log(result);
+		res.send(result)
+	})
 
 });
 
