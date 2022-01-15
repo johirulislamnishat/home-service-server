@@ -207,15 +207,21 @@ client.connect((err) => {
 		// console.log(result);
 		res.json(result)
 	});
+	app.post('/addReview', async (req, res) => {
+		const reviewData = req.body;
+		const result = await reviewCollection.insertOne(reviewData)
+		// console.log(result);
+		res.json(result)
+	});
 
 	//REVIEW POST API
-	app.post('/addReview', (req, res) => {
-		const reviewData = req.body;
-		reviewCollection.insertOne(reviewData).then((result) => {
-			res.send(result.insertedCount > 0);
-			console.log(result.insertedCount, 'Review Data Inserted');
-		});
-	});
+	// app.post('/addReview', (req, res) => {
+	// 	const reviewData = req.body;
+	// 	reviewCollection.insertOne(reviewData).then((result) => {
+	// 		res.send(result.insertedCount > 0);
+	// 		console.log(result.insertedCount, 'Review Data Inserted');
+	// 	});
+	// });
 
 	//REVIEW GET API
 	app.get('/addReviews', async (req, res) => {
